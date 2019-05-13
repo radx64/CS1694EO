@@ -1,28 +1,18 @@
+#include "CS1694EO.hpp"
+#include "DVD_4350_panel.hpp"
+
 #define CLOCK_PIN 12
 #define STB_PIN 11
 #define DATA_PIN 10
 
-const int INIT_MODE_6_GRIDS_11_SEGS = 0b00000010;
-const int INIT_MODE_7_GRIDS_10_SEGS = 0b00000011;
+CS1694EO driver(CLOCK_PIN, DATA_PIN, STB_PIN);
+DVD_4350_panel lcd_panel(driver);
+
 const int DISPLAY_RAM_SIZE = 0xD;
 
-const int BRIGHTNESS_OPCODE  = 0b10001000;
-const int BRIGHTNESS_LEVEL_1 = 0b000;
-const int BRIGHTNESS_LEVEL_2 = 0b001;
-const int BRIGHTNESS_LEVEL_3 = 0b010;
-const int BRIGHTNESS_LEVEL_4 = 0b011;
-const int BRIGHTNESS_LEVEL_5 = 0b100;
-const int BRIGHTNESS_LEVEL_6 = 0b101;
-const int BRIGHTNESS_LEVEL_7 = 0b110;
-const int BRIGHTNESS_LEVEL_8 = 0b111;
-
 const int WRITE_OPCODE = 0b01000000;
-const int SET_RAM_ADDRESS_OPCODE = 0b11000000;
 
-const int init_command =  INIT_MODE_7_GRIDS_10_SEGS;
-const int write_command = WRITE_OPCODE;
-const int brightness_command = BRIGHTNESS_OPCODE | BRIGHTNESS_LEVEL_3;
-const int set_display_ram_address_to_begining = SET_RAM_ADDRESS_OPCODE | 0b00000000;
+const char write_command = WRITE_OPCODE;
 
 /* LEFT PANEL PART 1 */
 const int left_panel_1_address = 0x01;
@@ -91,45 +81,6 @@ const int default_delay = 8;
 
 int data[0xF] = {0};
 
-void toggle_stb()
-{
-  digitalWrite(STB_PIN, HIGH);
-  delayMicroseconds(default_delay);
-  digitalWrite(STB_PIN, LOW);
-}
-
-void write_byte(int byte_to_send)
-{
-  for(int i=0; i<8; ++i)
-  {
-    digitalWrite(CLOCK_PIN, LOW);
-    delayMicroseconds(default_delay);
-    digitalWrite(DATA_PIN, (byte_to_send & 0b00000001));  
-    delayMicroseconds(default_delay);
-    digitalWrite(CLOCK_PIN, HIGH);
-    byte_to_send >>= 1;
-    delayMicroseconds(default_delay);
-  }
-  delayMicroseconds(default_delay*2);
-}
-
-void setup() {
-  pinMode(CLOCK_PIN, OUTPUT);
-  pinMode(STB_PIN, OUTPUT);
-  pinMode(DATA_PIN, OUTPUT); 
-  digitalWrite(STB_PIN, HIGH);
-  delayMicroseconds(default_delay);
-  digitalWrite(CLOCK_PIN, HIGH);
-  delayMicroseconds(default_delay);
-  digitalWrite(STB_PIN, LOW);
-  delayMicroseconds(default_delay);
-  
-  write_byte(init_command);
-  toggle_stb();
-
-  write_byte(brightness_command);
-  toggle_stb();
-}
 
 /*   SEGMENTS DESCRIPTION 
  *      a
@@ -195,43 +146,41 @@ void write_text_on_display(char* text, int len)
   }
 }
 
+void setup() {
+  driver.init(CS1694EO::InitMode::M7_GRIDS_10_SEGS);
+  driver.set_brightness(CS1694EO::BrightnessLevel::BRIGHTNESS_LEVEL_3);
+}
+
 void loop() { 
-  write_byte(set_display_ram_address_to_begining);
-  toggle_stb();
+  driver.set_ram_to_begining();
   
   for(int i=0x00; i<=DISPLAY_RAM_SIZE ; ++i)
   {
-      write_byte(write_command);
-      write_byte(0xFF);
-      toggle_stb();
+      driver.write_byte(write_command);
+      driver.write_byte(0xFF);
+      driver.toggle_stb();
       delay(10);
   }
   delay(100);
 
-  write_byte(set_display_ram_address_to_begining);
-  toggle_stb();
+  driver.set_ram_to_begining();
   
   for(int i=0x00; i<=DISPLAY_RAM_SIZE ; ++i)
   {
-      write_byte(write_command);
-      write_byte(0x00);
-      toggle_stb();
+      driver.write_byte(write_command);
+      driver.write_byte(0x00);
+      driver.toggle_stb();
       delay(25);
   }
- 
-//
-//data[middle_semicolon_address] = middle_semicolon_bit;
-//data[right_semicolon_address] = right_semicolon_bit;
 
-write_byte(set_display_ram_address_to_begining);
-toggle_stb();
+driver.set_ram_to_begining();
 
 write_text_on_display("0123456", 7); //actualy write to local buffer and then (in a loop below) send it
 for(int i=0x00; i<=DISPLAY_RAM_SIZE ; ++i)
   {
-      write_byte(write_command);
-      write_byte(data[i]);
-      toggle_stb();
+      driver.write_byte(write_command);
+      driver.write_byte(data[i]);
+      driver.toggle_stb();
       delay(25);
   }
   delay(2000);
