@@ -3,13 +3,13 @@
 class CS1694EO
 {
 public:
-  enum class InitMode
+  enum class InitMode : char
   {
     M6_GRIDS_11_SEGS = 0b00000010,
     M7_GRIDS_10_SEGS = 0b00000011
   };
   
-  enum class BrightnessLevel
+  enum class BrightnessLevel : char
   {
     BRIGHTNESS_LEVEL_1 = 0b000,
     BRIGHTNESS_LEVEL_2 = 0b001,
@@ -21,14 +21,13 @@ public:
     BRIGHTNESS_LEVEL_8 = 0b111    
   };
   
-  static constexpr int DISPLAY_RAM_SIZE = 0xD;
-  static constexpr int BRIGHTNESS_OPCODE  = 0b10001000;
-  static constexpr int WRITE_OPCODE = 0b01000000;
-  static constexpr int SET_RAM_ADDRESS_OPCODE = 0b11000000;
-  
-  static constexpr int DELAY_US = 8;
+  static constexpr char DISPLAY_RAM_SIZE = 0xD;
+  static constexpr char BRIGHTNESS_OPCODE  = 0b10001000;
+  static constexpr char WRITE_OPCODE = 0b01000000;
+  static constexpr char SET_RAM_ADDRESS_OPCODE = 0b11000000;
+  static constexpr char DELAY_US = 8;
 
-  CS1694EO(const int clock_pin, const int data_pin, const int stb_pin);
+  CS1694EO(const char clock_pin, const char data_pin, const char stb_pin);
   void init(const CS1694EO::InitMode& mode);
   void set_brightness(const CS1694EO::BrightnessLevel& brightness_level);
   void write_byte(const char& byte);
@@ -38,12 +37,12 @@ public: //this section will be eventualy merged to protected one after refactori
   void toggle_stb();
 
 protected:
-  const int clock_pin_;
-  const int data_pin_;
-  const int stb_pin_;
+  const char clock_pin_;
+  const char data_pin_;
+  const char stb_pin_;
 };
 
-CS1694EO::CS1694EO(const int clock_pin, const int data_pin, const int stb_pin) : clock_pin_(clock_pin), data_pin_(data_pin), stb_pin_(stb_pin)
+CS1694EO::CS1694EO(const char clock_pin, const char data_pin, const char stb_pin) : clock_pin_(clock_pin), data_pin_(data_pin), stb_pin_(stb_pin)
 {}
 
 void CS1694EO::init(const CS1694EO::InitMode& mode)
