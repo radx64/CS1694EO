@@ -25,13 +25,15 @@ public:
   static constexpr char BRIGHTNESS_OPCODE  = 0b10001000;
   static constexpr char WRITE_OPCODE = 0b01000000;
   static constexpr char SET_RAM_ADDRESS_OPCODE = 0b11000000;
-  static constexpr char DELAY_US = 8;
+  static constexpr char DELAY_US = 4;
 
   CS1694EO(const char clock_pin, const char data_pin, const char stb_pin);
   void init(const CS1694EO::InitMode& mode);
   void set_brightness(const CS1694EO::BrightnessLevel& brightness_level);
+  void write_to_ram(const char value);
+  void write_to_ram(const char address, const char value);
+  void set_ram_address(const char address);
   void write_byte(const char& byte);
-  void set_ram_to_begining();
 
 public: //this section will be eventualy merged to protected one after refactoring
   void toggle_stb();
@@ -66,6 +68,24 @@ void CS1694EO::set_brightness(const CS1694EO::BrightnessLevel& brightness_level)
   toggle_stb();
 }
 
+void CS1694EO::set_ram_address(const char address)
+{
+  write_byte(SET_RAM_ADDRESS_OPCODE | address);
+  toggle_stb();
+}
+
+void CS1694EO::write_to_ram(const char value)
+{
+  write_byte(WRITE_OPCODE);
+  write_byte(value);
+  toggle_stb();  
+}
+void CS1694EO::write_to_ram(const char address, const char value)
+{
+  set_ram_address(address);
+  write_to_ram(value);
+}
+
 void CS1694EO::write_byte(const char& byte)
 {
   char byte_to_write = byte;
@@ -87,10 +107,4 @@ void CS1694EO::toggle_stb()
   digitalWrite(stb_pin_, HIGH);
   delayMicroseconds(DELAY_US);
   digitalWrite(stb_pin_, LOW);
-}
-
-void CS1694EO::set_ram_to_begining()
-{
-  write_byte(SET_RAM_ADDRESS_OPCODE | 0b00000000);
-  toggle_stb();
 }

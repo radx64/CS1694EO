@@ -8,7 +8,7 @@
 CS1694EO driver(CLOCK_PIN, DATA_PIN, STB_PIN);
 DVD_4350_panel lcd_panel(driver);
 
-const int DISPLAY_RAM_SIZE = 0xD;
+const int DISPLAY_RAM_SIZE = 0xE;
 
 const int WRITE_OPCODE = 0b01000000;
 
@@ -103,7 +103,7 @@ const bool segs_9[7] = {1,1,1,1,0,1,1};
 
 void write_(const bool segs[7], const int index)
 {
-  int digit_mask = 0x00;
+  unsigned int digit_mask = 0x00;
   switch (index)
   {
     case 0 : digit_mask = digit_1; break;
@@ -116,13 +116,13 @@ void write_(const bool segs[7], const int index)
     default : digit_mask = 0x00;
   }
   
-  if (segs[0]) data[a_segment_address] |= digit_mask;
-  if (segs[1]) data[b_segment_address] |= digit_mask;
-  if (segs[2]) data[c_segment_address] |= digit_mask;
-  if (segs[3]) data[d_segment_address] |= digit_mask;
-  if (segs[4]) data[e_segment_address] |= digit_mask;
-  if (segs[5]) data[f_segment_address] |= digit_mask;
-  if (segs[6]) data[g_segment_address] |= digit_mask;
+  if (segs[0]) {data[a_segment_address] |= digit_mask;} else {data[a_segment_address] &= (~digit_mask);}
+  if (segs[1]) {data[b_segment_address] |= digit_mask;} else {data[b_segment_address] &= (~digit_mask);}
+  if (segs[2]) {data[c_segment_address] |= digit_mask;} else {data[c_segment_address] &= (~digit_mask);}
+  if (segs[3]) {data[d_segment_address] |= digit_mask;} else {data[d_segment_address] &= (~digit_mask);}
+  if (segs[4]) {data[e_segment_address] |= digit_mask;} else {data[e_segment_address] &= (~digit_mask);}
+  if (segs[5]) {data[f_segment_address] |= digit_mask;} else {data[f_segment_address] &= (~digit_mask);}
+  if (segs[6]) {data[g_segment_address] |= digit_mask;} else {data[g_segment_address] &= (~digit_mask);}
 }
 
 void write_text_on_display(char* text, int len)
@@ -151,40 +151,19 @@ void setup() {
   driver.set_brightness(CS1694EO::BrightnessLevel::BRIGHTNESS_LEVEL_3);
 }
 
+int counter = 0;
+char counter_str[33];
+  
 void loop() { 
-  driver.set_ram_to_begining();
-  
-  for(int i=0x00; i<=DISPLAY_RAM_SIZE ; ++i)
-  {
-      driver.write_byte(write_command);
-      driver.write_byte(0xFF);
-      driver.toggle_stb();
-      delay(10);
-  }
-  delay(100);
+  driver.set_ram_address(0b00000000);
+  itoa(counter, counter_str, 10);
+  write_text_on_display(counter_str, 7); //actualy write to local buffer and then (in a loop below) send it
 
-  driver.set_ram_to_begining();
-  
-  for(int i=0x00; i<=DISPLAY_RAM_SIZE ; ++i)
-  {
-      driver.write_byte(write_command);
-      driver.write_byte(0x00);
-      driver.toggle_stb();
-      delay(25);
-  }
-
-driver.set_ram_to_begining();
-
-write_text_on_display("0123456", 7); //actualy write to local buffer and then (in a loop below) send it
-for(int i=0x00; i<=DISPLAY_RAM_SIZE ; ++i)
+  for(int i=0x00; i<DISPLAY_RAM_SIZE ; ++i)
   {
       driver.write_byte(write_command);
       driver.write_byte(data[i]);
       driver.toggle_stb();
-      delay(25);
   }
-  delay(2000);
-
-  digitalWrite(STB_PIN, HIGH);
-  delay(500);
+  counter+=1;
 }
