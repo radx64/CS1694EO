@@ -20,12 +20,6 @@ public:
     BRIGHTNESS_LEVEL_7 = 0b110,
     BRIGHTNESS_LEVEL_8 = 0b111    
   };
-  
-  static constexpr char DISPLAY_RAM_SIZE = 0xD;
-  static constexpr char BRIGHTNESS_OPCODE  = 0b10001000;
-  static constexpr char WRITE_OPCODE = 0b01000000;
-  static constexpr char SET_RAM_ADDRESS_OPCODE = 0b11000000;
-  static constexpr char DELAY_US = 4;
 
   CS1694EO(const char clock_pin, const char data_pin, const char stb_pin);
   void init(const CS1694EO::InitMode& mode);
@@ -33,16 +27,23 @@ public:
   void write_to_ram(const char value);
   void write_to_ram(const char address, const char value);
   void set_ram_address(const char address);
-  void write_byte(const char& byte);
-
-public: //this section will be eventualy merged to protected one after refactoring
-  void toggle_stb();
+  static const char DISPLAY_RAM_SIZE;
 
 protected:
+  void toggle_stb();
+  void write_byte(const char& byte);
+    
+  static const char BRIGHTNESS_OPCODE, WRITE_OPCODE, SET_RAM_ADDRESS_OPCODE, DELAY_US;
   const char clock_pin_;
   const char data_pin_;
   const char stb_pin_;
 };
+
+const char CS1694EO::DISPLAY_RAM_SIZE = 0xE;
+const char CS1694EO::BRIGHTNESS_OPCODE  = 0b10001000;
+const char CS1694EO::WRITE_OPCODE = 0b01000000;
+const char CS1694EO::SET_RAM_ADDRESS_OPCODE = 0b11000000;
+const char CS1694EO::DELAY_US = 4;
 
 CS1694EO::CS1694EO(const char clock_pin, const char data_pin, const char stb_pin) : clock_pin_(clock_pin), data_pin_(data_pin), stb_pin_(stb_pin)
 {}

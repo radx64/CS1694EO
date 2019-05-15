@@ -8,12 +8,6 @@
 CS1694EO driver(CLOCK_PIN, DATA_PIN, STB_PIN);
 DVD_4350_panel lcd_panel(driver);
 
-const int DISPLAY_RAM_SIZE = 0xE;
-
-const int WRITE_OPCODE = 0b01000000;
-
-const char write_command = WRITE_OPCODE;
-
 /* LEFT PANEL PART 1 */
 const int left_panel_1_address = 0x01;
 const int dvd_icon = 0x2;
@@ -146,24 +140,19 @@ void write_text_on_display(char* text, int len)
   }
 }
 
-void setup() {
+int counter = 0;
+char counter_str[10];
+
+void setup() 
+{
   driver.init(CS1694EO::InitMode::M7_GRIDS_10_SEGS);
   driver.set_brightness(CS1694EO::BrightnessLevel::BRIGHTNESS_LEVEL_3);
 }
-
-int counter = 0;
-char counter_str[33];
   
-void loop() { 
-  driver.set_ram_address(0b00000000);
+void loop() 
+{
   itoa(counter, counter_str, 10);
   write_text_on_display(counter_str, 7); //actualy write to local buffer and then (in a loop below) send it
-
-  for(int i=0x00; i<DISPLAY_RAM_SIZE ; ++i)
-  {
-      driver.write_byte(write_command);
-      driver.write_byte(data[i]);
-      driver.toggle_stb();
-  }
+  for(int i=0x00; i<CS1694EO::DISPLAY_RAM_SIZE ; ++i) driver.write_to_ram(i, data[i]);
   counter+=1;
 }
