@@ -41,44 +41,44 @@ const int spinner_icon_7 = 0x02;
  *      d
  */
 
-                      //a,b,c,d,e,f,g,
-const bool segs_space[7] = {0,0,0,0,0,0,0};
-const bool segs_0[7] = {1,1,1,1,1,1,0};
-const bool segs_1[7] = {0,1,1,0,0,0,0};
-const bool segs_2[7] = {1,1,0,1,1,0,1};
-const bool segs_3[7] = {1,1,1,1,0,0,1};
-const bool segs_4[7] = {0,1,1,0,0,1,1};
-const bool segs_5[7] = {1,0,1,1,0,1,1};
-const bool segs_6[7] = {1,0,1,1,1,1,1};
-const bool segs_7[7] = {1,1,1,0,0,0,0};
-const bool segs_8[7] = {1,1,1,1,1,1,1};
-const bool segs_9[7] = {1,1,1,1,0,1,1};
-const bool segs_a[7] = {1,1,1,0,1,1,1};
-const bool segs_b[7] = {0,0,1,1,1,1,1};
-const bool segs_c[7] = {1,0,0,1,1,1,0};
-const bool segs_d[7] = {0,1,1,1,1,0,1};
-const bool segs_e[7] = {1,0,0,1,1,1,1};
-const bool segs_f[7] = {1,0,0,0,1,1,1};
-const bool segs_g[7] = {1,0,1,1,1,1,0};
-const bool segs_h[7] = {0,1,1,0,1,1,1};
-const bool segs_i[7] = {0,1,1,0,0,0,0};
-const bool segs_j[7] = {0,1,1,1,0,0,0};
-const bool segs_k[7] = {0,1,1,0,1,1,1};
-const bool segs_l[7] = {0,0,0,1,1,1,0};
-const bool segs_m[7] = {0,0,1,0,1,0,1};
-const bool segs_n[7] = {0,0,1,0,1,0,1};
-const bool segs_o[7] = {0,0,1,1,1,0,1};
-const bool segs_p[7] = {1,1,0,0,1,1,1};
-const bool segs_q[7] = {1,1,1,0,0,1,1};
-const bool segs_r[7] = {0,0,0,0,1,0,1};
-const bool segs_s[7] = {1,0,1,1,0,1,1};
-const bool segs_t[7] = {0,0,0,1,1,1,1};
-const bool segs_u[7] = {0,0,1,1,1,0,0};
-const bool segs_v[7] = {0,0,1,1,1,0,0};
-const bool segs_w[7] = {0,0,1,1,1,0,0};
-const bool segs_x[7] = {0,1,1,0,1,1,1};
-const bool segs_y[7] = {0,1,1,1,0,1,1};
-const bool segs_z[7] = {1,1,0,1,1,0,1};
+                                // abcdefg
+const unsigned char segs_space = 0b0000000;
+const unsigned char segs_0 = 0b1111110;
+const unsigned char segs_1 = 0b0110000;
+const unsigned char segs_2 = 0b1101101;
+const unsigned char segs_3 = 0b1111001;
+const unsigned char segs_4 = 0b0110011;
+const unsigned char segs_5 = 0b1011011;
+const unsigned char segs_6 = 0b1011111;
+const unsigned char segs_7 = 0b1110000;
+const unsigned char segs_8 = 0b1111111;
+const unsigned char segs_9 = 0b1111011;
+const unsigned char segs_a = 0b1110111;
+const unsigned char segs_b = 0b0011111;
+const unsigned char segs_c = 0b1001110;
+const unsigned char segs_d = 0b0111101;
+const unsigned char segs_e = 0b1001111;
+const unsigned char segs_f = 0b1000111;
+const unsigned char segs_g = 0b1011110;
+const unsigned char segs_h = 0b0110111;
+const unsigned char segs_i = 0b0110000;
+const unsigned char segs_j = 0b0111000;
+const unsigned char segs_k = 0b0110111;
+const unsigned char segs_l = 0b0001110;
+const unsigned char segs_m = 0b0010101;
+const unsigned char segs_n = 0b0010101;
+const unsigned char segs_o = 0b0011101;
+const unsigned char segs_p = 0b1100111;
+const unsigned char segs_q = 0b1110011;
+const unsigned char segs_r = 0b0000101;
+const unsigned char segs_s = 0b1011011;
+const unsigned char segs_t = 0b0001111;
+const unsigned char segs_u = 0b0011100;
+const unsigned char segs_v = 0b0011100;
+const unsigned char segs_w = 0b0011100;
+const unsigned char segs_x = 0b0110111;
+const unsigned char segs_y = 0b0111011;
+const unsigned char segs_z = 0b1101101;
 
 const int a_segment_address = 0x00;
 const int b_segment_address = 0x02;
@@ -107,7 +107,7 @@ const int dts_icon_bit = 0x40;
 const int repeat_icon_address = 0x00;
 const int repeat_icon_bit = 0x40;
 
-void write_(const bool segs[7], const int index)
+void write_(const unsigned char segs, const int index)
 {
   unsigned int digit_mask = 0x00;
   switch (index)
@@ -122,13 +122,13 @@ void write_(const bool segs[7], const int index)
     default : digit_mask = 0x00;
   }
   
-  if (segs[0]) {data[a_segment_address] |= digit_mask;} else {data[a_segment_address] &= (~digit_mask);}
-  if (segs[1]) {data[b_segment_address] |= digit_mask;} else {data[b_segment_address] &= (~digit_mask);}
-  if (segs[2]) {data[c_segment_address] |= digit_mask;} else {data[c_segment_address] &= (~digit_mask);}
-  if (segs[3]) {data[d_segment_address] |= digit_mask;} else {data[d_segment_address] &= (~digit_mask);}
-  if (segs[4]) {data[e_segment_address] |= digit_mask;} else {data[e_segment_address] &= (~digit_mask);}
-  if (segs[5]) {data[f_segment_address] |= digit_mask;} else {data[f_segment_address] &= (~digit_mask);}
-  if (segs[6]) {data[g_segment_address] |= digit_mask;} else {data[g_segment_address] &= (~digit_mask);}
+  if (segs & 0b1000000) {data[a_segment_address] |= digit_mask;} else {data[a_segment_address] &= (~digit_mask);}
+  if (segs & 0b0100000) {data[b_segment_address] |= digit_mask;} else {data[b_segment_address] &= (~digit_mask);}
+  if (segs & 0b0010000) {data[c_segment_address] |= digit_mask;} else {data[c_segment_address] &= (~digit_mask);}
+  if (segs & 0b0001000) {data[d_segment_address] |= digit_mask;} else {data[d_segment_address] &= (~digit_mask);}
+  if (segs & 0b0000100) {data[e_segment_address] |= digit_mask;} else {data[e_segment_address] &= (~digit_mask);}
+  if (segs & 0b0000010) {data[f_segment_address] |= digit_mask;} else {data[f_segment_address] &= (~digit_mask);}
+  if (segs & 0b0000001) {data[g_segment_address] |= digit_mask;} else {data[g_segment_address] &= (~digit_mask);}
 }
 
 void write_text_on_display(char* text, int len)
